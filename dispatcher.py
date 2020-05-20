@@ -44,15 +44,15 @@ class Dispatcher:
             print("Invalid action")
 
     def on_new_game(self, game_id: str):
-        print("Starting game with id {}", game_id)
+        print("Starting game with id {}".format(game_id))
         self.games[game_id] = Referee(game_id, self.mqtt_client, self.game_repo, self.on_game_stop)
 
     def on_game_stop(self, game_id: str):
-        print("Game {} has stopped", game_id)
+        print("Game {} has stopped".format(game_id))
         self.games.pop(game_id, None)
 
     def on_mqtt_connect(self, client: mqtt.Client, obj, flags, rc):
-        print("MQTT connected: {}", rc)
+        print("MQTT connected")
         self.mqtt_barrier.wait()
 
     @staticmethod
@@ -60,7 +60,7 @@ class Dispatcher:
         print("MQTT disconnected")
 
     def on_message(self, client: mqtt.Client, obj, msg: mqtt.MQTTMessage):
-        print("Processing message with topic {}", msg.topic)
+        print("Processing message with topic {}".format(msg.topic))
         topic = msg.topic.split("/")
         try:
             referee = self.games[topic[0]]
