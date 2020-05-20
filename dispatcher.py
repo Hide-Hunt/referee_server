@@ -40,8 +40,6 @@ class Dispatcher:
 
     def on_game_stop(self, game_id: str):
         self.games.pop(game_id, None)
-        if not self.games:
-            self.mqtt_client.loop_stop()
 
     def on_message(self, client: mqtt.Client, obj, msg: mqtt.MQTTMessage):
         topic = msg.topic.split("/")
