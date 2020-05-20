@@ -21,6 +21,7 @@ class Referee:
         self.timeout_thread = threading.Timer(self.info.duration, self.stop)
         self.timeout_thread.start()
         self.stop_lock = threading.Lock()
+        self.start_time = time.time()
 
     def stop(self):
         self.stop_lock.acquire()
@@ -38,6 +39,8 @@ class Referee:
         self.info.log.events.append(event)
         self.info.alive_preys.remove(event.preyID)
         self.info.dead_preys.append(event.preyID)
+        self.info.players[event.predatorID].score += 1
+        self.info.players[event.preyID].score = time.time() - self.start_time
         if self.is_over():
             self.stop()
 
