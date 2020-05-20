@@ -1,11 +1,13 @@
 import json
 import os
+from queue import Queue
+
 import firebase_admin
 from firebase_admin import credentials, firestore, storage
 
 
 class FirebaseRepo:
-    def __init__(self):
+    def __init__(self, action_queue: Queue):
         service_account_key = os.environ.get("FIREBASE_CERTIFICATE", None)
         if service_account_key is None:
             cred = credentials.Certificate("serviceAccountKey.json")
@@ -16,6 +18,16 @@ class FirebaseRepo:
         })
         self.db = firestore.client()
         self.bucket = storage.bucket()
+        self.action_queue = action_queue
+        action_query = self.db.collection(u'game_queue').order_by(u'timestamp')
+        self.action_watch = action_query.on_snapshot(self.__on_action_snapshot)
+
+    def __on_action_snapshot(self, col_snapshot, changes, read_time):
+        for change in changes:
+            if change.type.name == 'ADDED':
+                action = change.document.to_dict()
+                change.document.delete()
+                self.action_queue.put(action)
 
     def get_game(self, game_id: str) -> [dict, None]:
         doc = self.db.collection(u'games').document(game_id).get()
