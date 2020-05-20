@@ -7,8 +7,9 @@ from proto import LocationEvent_pb2, CatchEvent_pb2
 
 
 class Referee:
-    def __init__(self, game_id: str, mqtt_client: mqtt.Client, repo):
+    def __init__(self, game_id: str, mqtt_client: mqtt.Client, repo, stop_callback: Callable[[str], None]):
         self.mqtt_client = mqtt_client
+        self.stop_callback = stop_callback
         self.info = GameInfo(game_id, repo)
         self.running = True
         
@@ -24,16 +25,19 @@ class Referee:
         self.start_time = time.time()
 
     def stop(self):
-        self.stop_lock.acquire()
-        if self.running:
-            self.running = False
-            self.timeout_thread.cancel()
-            self.mqtt_client.unsubscribe(self.info.id + "/catch")
-            for player in self.info.players:
-                self.mqtt_client.unsubscribe(self.info.id + "/" + str(player.id))
-            self.info.set_stopped()
-            self.info.upload_log()
-        self.stop_lock.release()
+        with self.stop_lock:
+            if self.running:
+                self.running = False
+                self.timeout_thread.cancel()
+                self.mqtt_client.unsubscribe(self.info.id + "/catch")
+                game_duration = time.time() - self.start_time
+                for player in self.info.players:
+                    self.mqtt_client.unsubscribe(self.info.id + "/" + str(player.id))
+                    if player.id in self.info.alive_preys:
+                        player.score = game_duration
+                self.info.set_stopped()
+                self.info.upload_log()
+                self.stop_callback(self.info.id)
 
     def on_catch(self, event: CatchEvent_pb2.CatchEvent):
         self.info.log.events.append(event)
