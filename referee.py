@@ -1,4 +1,6 @@
 import threading
+import time
+from typing import Callable
 
 import paho.mqtt.client as mqtt
 
@@ -13,9 +15,9 @@ class Referee:
         self.info = GameInfo(game_id, repo)
         self.running = True
         
-        self.mqtt_client.subscribe(self.info.id + "/catch")
+        self.mqtt_client.subscribe(self.info.id + "/catch", 2)
         for player in self.info.players:
-            self.mqtt_client.subscribe(self.info.id + "/" + str(player.id))
+            self.mqtt_client.subscribe(self.info.id + "/" + str(player.id), 2)
 
         self.info.set_started()
 
