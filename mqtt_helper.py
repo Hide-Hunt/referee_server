@@ -5,7 +5,7 @@ import paho.mqtt.client as mqtt
 
 
 def connect_mqtt_with_credentials(client: mqtt.Client):
-    settings_env = os.environ.get("FIREBASE_CERTIFICATE", None)
+    settings_env = os.environ.get("MQTT_SETTINGS", None)
     if settings_env is not None:
         settings = json.loads(settings_env)
     else:
