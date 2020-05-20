@@ -22,6 +22,7 @@ class Dispatcher:
     def run(self):
         self.mqtt_client.loop_start()
         self.running = True
+        print("Dispatcher running: waiting for action to be queued")
         while self.running:
             action = self.action_queue.get()
             self.perform_action(action)
@@ -36,12 +37,15 @@ class Dispatcher:
             print("Invalid action")
 
     def on_new_game(self, game_id: str):
+        print("Starting game with id {}", game_id)
         self.games[game_id] = Referee(game_id, self.mqtt_client, self.game_repo, self.on_game_stop)
 
     def on_game_stop(self, game_id: str):
+        print("Game {} has stopped", game_id)
         self.games.pop(game_id, None)
 
     def on_message(self, client: mqtt.Client, obj, msg: mqtt.MQTTMessage):
+        print("Processing message with topic {}", msg.topic)
         topic = msg.topic.split("/")
         try:
             referee = self.games[topic[0]]
