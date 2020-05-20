@@ -13,22 +13,22 @@ class Referee:
         self.mqtt_client = mqtt_client
         self.stop_callback = stop_callback
         self.info = GameInfo(game_id, repo)
+        self.timeout_thread = threading.Timer(self.info.duration, self.stop)
+        self.stop_lock = threading.Lock()
+        self.start_time = time.time()
         self.running = True
         
         self.mqtt_client.subscribe(self.info.id + "/catch", 2)
         for player in self.info.players.values():
             self.mqtt_client.subscribe(self.info.id + "/" + str(player.id), 2)
-
         self.info.set_started()
-
-        self.timeout_thread = threading.Timer(self.info.duration, self.stop)
         self.timeout_thread.start()
-        self.stop_lock = threading.Lock()
-        self.start_time = time.time()
+        print("Referee for game {} ready".format(self.info.id))
 
     def stop(self):
         with self.stop_lock:
             if self.running:
+                print("Stopping referee for game {}".format(self.info.id))
                 self.running = False
                 self.timeout_thread.cancel()
                 self.mqtt_client.unsubscribe(self.info.id + "/catch")
