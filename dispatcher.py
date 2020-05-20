@@ -13,7 +13,7 @@ class Dispatcher:
         self.games: Dict[str, Referee] = {}
         self.action_queue = Queue()
         self.game_repo = FirebaseRepo(self.action_queue)
-        self.running = True
+        self.running = False
 
         self.mqtt_client = mqtt.Client()
         self.mqtt_client.on_message = self.on_message
@@ -21,9 +21,11 @@ class Dispatcher:
 
     def run(self):
         self.mqtt_client.loop_start()
+        self.running = True
         while self.running:
             action = self.action_queue.get()
             self.perform_action(action)
+        self.mqtt_client.loop_stop()
 
     def perform_action(self, action: Dict):
         try:
