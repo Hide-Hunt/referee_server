@@ -33,7 +33,7 @@ class Referee:
                 self.timeout_thread.cancel()
                 self.mqtt_client.unsubscribe(self.info.id + "/catch")
                 game_duration = time.time() - self.start_time
-                for player in self.info.players:
+                for player in self.info.players.values():
                     self.mqtt_client.unsubscribe(self.info.id + "/" + str(player.id))
                     if player.id in self.info.alive_preys:
                         player.score = game_duration
