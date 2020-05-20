@@ -44,8 +44,11 @@ class Dispatcher:
             print("Invalid action")
 
     def on_new_game(self, game_id: str):
-        print("Starting game with id {}".format(game_id))
-        self.games[game_id] = Referee(game_id, self.mqtt_client, self.game_repo, self.on_game_stop)
+        try:
+            print("Starting game with id {}".format(game_id))
+            self.games[game_id] = Referee(game_id, self.mqtt_client, self.game_repo, self.on_game_stop)
+        except ReferenceError:
+            print("Invalid game ID {}".format(game_id))
 
     def on_game_stop(self, game_id: str):
         print("Game {} has stopped".format(game_id))

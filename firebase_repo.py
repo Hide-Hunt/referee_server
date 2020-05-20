@@ -34,7 +34,7 @@ class FirebaseRepo:
         if doc.exists:
             return doc.to_dict()
         else:
-            return None
+            raise ReferenceError()
 
     def set_game_started(self, game_id: str):
         self.db.collection(u'games').document(game_id).update({
