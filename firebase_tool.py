@@ -20,7 +20,7 @@ class FirebaseTool:
         self.bucket = storage.bucket()
 
     def start_game(self, game_id: str, action: str):
-        self.db.collection(u'game_queue').add({
+        self.db.collection(u'game_action_queue').add({
             u'timestamp': time.time(),
             u'action': action,
             u'game_id': game_id
