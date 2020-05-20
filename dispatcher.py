@@ -1,3 +1,4 @@
+import threading
 from queue import Queue
 from typing import Dict
 
@@ -16,11 +17,17 @@ class Dispatcher:
         self.running = False
 
         self.mqtt_client = mqtt.Client()
+        self.mqtt_client.on_connect = self.on_mqtt_connect
+        self.mqtt_client.on_disconnect = self.on_mqtt_disconnect
         self.mqtt_client.on_message = self.on_message
         connect_mqtt_with_credentials(self.mqtt_client)
+        self.mqtt_barrier = threading.Barrier(2)
 
     def run(self):
+        print("Starting dispatcher")
         self.mqtt_client.loop_start()
+        print("Waiting for MQTT connection...")
+        self.mqtt_barrier.wait()
         self.running = True
         print("Dispatcher running: waiting for action to be queued")
         while self.running:
@@ -43,6 +50,14 @@ class Dispatcher:
     def on_game_stop(self, game_id: str):
         print("Game {} has stopped", game_id)
         self.games.pop(game_id, None)
+
+    def on_mqtt_connect(self, client: mqtt.Client, obj, flags, rc):
+        print("MQTT connected: {}", rc)
+        self.mqtt_barrier.wait()
+
+    @staticmethod
+    def on_mqtt_disconnect(client: mqtt.Client, obj, rc):
+        print("MQTT disconnected")
 
     def on_message(self, client: mqtt.Client, obj, msg: mqtt.MQTTMessage):
         print("Processing message with topic {}", msg.topic)
