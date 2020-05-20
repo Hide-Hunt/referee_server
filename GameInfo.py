@@ -20,6 +20,8 @@ class GameInfo:
     def __init__(self, game_id: str, repo):
         self.id = game_id
         self.repo = repo
+
+        # Fetch game data from repo
         game_data = self.repo.get_game(self.id)
         sorted_participation = enumerate(sorted(game_data['participation'], key=lambda p: p['userID']))
 
