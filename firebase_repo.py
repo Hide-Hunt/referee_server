@@ -19,7 +19,7 @@ class FirebaseRepo:
         self.db = firestore.client()
         self.bucket = storage.bucket()
         self.action_queue = action_queue
-        action_query = self.db.collection(u'game_queue').order_by(u'timestamp')
+        action_query = self.db.collection(u'game_action_queue').order_by(u'timestamp')
         self.action_watch = action_query.on_snapshot(self.__on_action_snapshot)
 
     def __on_action_snapshot(self, col_snapshot, changes, read_time):
