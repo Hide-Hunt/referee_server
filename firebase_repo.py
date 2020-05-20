@@ -26,7 +26,7 @@ class FirebaseRepo:
         for change in changes:
             if change.type.name == 'ADDED':
                 action = change.document.to_dict()
-                change.document.delete()
+                change.document.reference.delete()
                 self.action_queue.put(action)
 
     def get_game(self, game_id: str) -> [dict, None]:

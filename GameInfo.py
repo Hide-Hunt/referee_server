@@ -25,8 +25,8 @@ class GameInfo:
 
         self.duration = game_data['duration']
         self.players: Dict[Player] = dict(map(lambda p: (p[0], Player.from_dict(p[0], p[1])), sorted_participation))
-        self.preys = list(map(lambda p: p.id, filter(lambda p: p.faction == 'PREY', self.players)))
-        self.predators = list(map(lambda p: p.id, filter(lambda p: p.faction == 'PREDATOR', self.players)))
+        self.preys = list(map(lambda p: p.id, filter(lambda p: p.faction == 'PREY', self.players.values())))
+        self.predators = list(map(lambda p: p.id, filter(lambda p: p.faction == 'PREDATOR', self.players.values())))
         self.alive_preys = self.preys.copy()
         self.dead_preys = []
 

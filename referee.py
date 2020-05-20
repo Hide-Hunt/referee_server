@@ -16,7 +16,7 @@ class Referee:
         self.running = True
         
         self.mqtt_client.subscribe(self.info.id + "/catch", 2)
-        for player in self.info.players:
+        for player in self.info.players.values():
             self.mqtt_client.subscribe(self.info.id + "/" + str(player.id), 2)
 
         self.info.set_started()
