@@ -42,17 +42,26 @@ class Referee:
                 self.stop_callback(self.info.id)
 
     def on_catch(self, event: CatchEvent_pb2.CatchEvent):
+        # Append event to game log
         self.info.log.events.append(event)
+        # Update prey state
         self.info.alive_preys.remove(event.preyID)
         self.info.dead_preys.append(event.preyID)
+        # Update players' score
         self.info.players[event.predatorID].score += 1
         self.info.players[event.preyID].score = time.time() - self.start_time
+        # Check game over condition
         if self.is_over():
             self.stop()
 
     def on_location(self, event: LocationEvent_pb2.LocationEvent):
+        # Append event to game log
         self.info.log.events.append(event)
+        # Update player's location
         self.info.players[event.playerID].location = event.location
+        # Check game over condition
+        if self.is_over():
+            self.stop()
 
     def is_over(self) -> bool:
         return not self.info.alive_preys
