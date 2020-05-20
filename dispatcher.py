@@ -43,14 +43,19 @@ class Dispatcher:
 
     def on_message(self, client: mqtt.Client, obj, msg: mqtt.MQTTMessage):
         topic = msg.topic.split("/")
-        game = self.games[topic[0]]
+        try:
+            referee = self.games[topic[0]]
+        except KeyError:
+            print("Invalid MQTT message (wrong game ID)")
+            return
+
         if topic[1] == "catch":
             event = CatchEvent_pb2.CatchEvent()
             event.ParseFromString(msg.payload)
-            game.on_catch(event)
+            referee.on_catch(event)
         else:
             event = LocationEvent_pb2.LocationEvent()
             event.playerID = topic[1]
             event.location = Location_pb2.Location()
             event.location.ParseFromString(msg.payload)
-            game.on_location(event)
+            referee.on_location(event)
