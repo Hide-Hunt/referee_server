@@ -44,7 +44,7 @@ class Referee:
     def on_catch(self, catch_payload):
         # Append event to game log
         game_event = GameEvent_pb2.GameEvent()
-        game_event.timestamp = int(time.time() / 1000)
+        game_event.timestamp = int(time.time())
         game_event.catch_event.ParseFromString(catch_payload)
         self.info.log.events.append(game_event)
         # Update prey state
@@ -61,7 +61,7 @@ class Referee:
     def on_location(self, player_id: int, location_payload):
         # Append event to game log
         game_event = GameEvent_pb2.GameEvent()
-        game_event.timestamp = int(time.time() / 1000)
+        game_event.timestamp = int(time.time())
         game_event.location_event.playerID = player_id
         game_event.location_event.location.ParseFromString(location_payload)
         self.info.log.events.append(game_event)
