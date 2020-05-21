@@ -5,7 +5,7 @@ from typing import Callable
 import paho.mqtt.client as mqtt
 
 from GameInfo import GameInfo
-from proto import LocationEvent_pb2, CatchEvent_pb2
+from proto import GameEvent_pb2
 
 
 class Referee:
@@ -41,10 +41,14 @@ class Referee:
                 self.info.upload_log()
                 self.stop_callback(self.info.id)
 
-    def on_catch(self, event: CatchEvent_pb2.CatchEvent):
+    def on_catch(self, catch_payload):
         # Append event to game log
-        self.info.log.events.append(event)
+        game_event = GameEvent_pb2.GameEvent()
+        game_event.timestamp = int(time.time() / 1000)
+        game_event.catch_event.ParseFromString(catch_payload)
+        self.info.log.events.append(game_event)
         # Update prey state
+        event = game_event.catch_event
         self.info.alive_preys.remove(event.preyID)
         self.info.dead_preys.append(event.preyID)
         # Update players' score
@@ -54,11 +58,15 @@ class Referee:
         if self.is_over():
             self.stop()
 
-    def on_location(self, event: LocationEvent_pb2.LocationEvent):
+    def on_location(self, player_id: int, location_payload):
         # Append event to game log
-        self.info.log.events.append(event)
+        game_event = GameEvent_pb2.GameEvent()
+        game_event.timestamp = int(time.time() / 1000)
+        game_event.location_event.playerID = player_id
+        game_event.location_event.location.ParseFromString(location_payload)
+        self.info.log.events.append(game_event)
         # Update player's location
-        self.info.players[event.playerID].location = event.location
+        self.info.players[player_id].location = game_event.location_event.location
         # Check game over condition
         if self.is_over():
             self.stop()
