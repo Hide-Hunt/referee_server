@@ -34,6 +34,7 @@ class GameInfo:
 
         self.log = Game_pb2.Game()
         self.log.id = game_id
+        self.log.adminID = game_data['adminID']
         for player in self.players.values():
             pb_player = Game_pb2.Player()
             pb_player.id = player.id
